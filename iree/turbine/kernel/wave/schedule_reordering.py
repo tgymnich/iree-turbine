@@ -391,7 +391,7 @@ def schedule_reordering(
     iterate_nodes = trace.walk(lambda node: isinstance(get_custom(node), Iterate))
     if not iterate_nodes:
         return
-    for iterate_node in iterate_nodes:
+    for _ in iterate_nodes:
         custom_iterate = get_custom(iterate_nodes[0])
         graph = trace.get_subgraph(custom_iterate.subgraph_name)
         iteration_dim = custom_iterate.axis

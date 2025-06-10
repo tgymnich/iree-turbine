@@ -161,7 +161,7 @@ def construct_shared_read_mapping(read: Read) -> IndexMapping:
     for dim in mapping.output_mapping:
         old_to_new_iter[mapping.output_mapping[dim]] = new_mapping.output_mapping[dim]
 
-    for dim, expr in new_mapping.input_mapping.items():
+    for dim, _ in new_mapping.input_mapping.items():
         iter = dim_to_iter[dim]
         new_mapping.input_mapping[dim] = old_to_new_iter[iter]
 

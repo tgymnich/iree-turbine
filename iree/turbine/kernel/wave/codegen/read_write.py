@@ -629,7 +629,7 @@ def handle_read(emitter: WaveEmitter, node: fx.Node):
 
     vector_shape = cast_py_literal(emitter, (elements_per_thread,))
     # memory has no IR node yet.
-    kb_src, kb_ir_type, kb_py_type = cast_kernel_buffer(emitter, memory)
+    kb_src, kb_ir_type, _ = cast_kernel_buffer(emitter, memory)
 
     if not hasattr(node, "index"):
         raise ValidationError("codegen expected read to have index attr.")

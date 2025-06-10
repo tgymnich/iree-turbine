@@ -505,7 +505,7 @@ def add_nodes_to_sources(
     """
     Populate the sources with the inputs and users of the source node.
     """
-    for args, reduction in [fn(source.fx_node, None)]:
+    for args, _ in [fn(source.fx_node, None)]:
         logger.debug(f"{source.fx_node} -> {args}")
         if not args:
             break

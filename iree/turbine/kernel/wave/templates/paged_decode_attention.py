@@ -392,7 +392,7 @@ def get_paged_decode_attention_kernels(
 
             return m_j, d_j, new_acc
 
-        res_max, res_sum, res_mm = repeat
+        _, res_sum, res_mm = repeat
         res = res_mm / res_sum
         res_casted = tkw.cast(res, wave_output_dtype)
         tkw.write(

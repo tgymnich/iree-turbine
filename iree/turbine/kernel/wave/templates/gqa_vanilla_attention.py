@@ -204,7 +204,7 @@ def get_gqa_bshd_attention_kernel(
             acc = tkw.mma(v_reg, imm_f, new_acc)
             return m_j, d_j, acc
 
-        res_max, res_sum, res_mm = repeat
+        _, res_sum, res_mm = repeat
         reciprocal_sum = tkw.reciprocal(res_sum)
         if use_fp8:
             res = res_mm * reciprocal_sum * v_dequant
