@@ -12,8 +12,8 @@ from iree.turbine.runtime.launch import Launchable
 def get_chain_mmt_asm(
     query_type: str, key_type: str, value_type: str, output_type: str
 ) -> tuple[str, str]:
-    B, M, K1, input_dtype = query_type.split("x")
-    B, K2, K1, input_dtype = key_type.split("x")
+    B, M, _, input_dtype = query_type.split("x")
+    B, K2, _, input_dtype = key_type.split("x")
     B, N, K2, input_dtype = value_type.split("x")
     B, N, M, output_dtype = output_type.split("x")
     intermediate_output_type = f"{B}x{K2}x{M}x{output_dtype}"
@@ -46,9 +46,9 @@ def get_chain_mmt_asm(
 def get_chain_mmt_f8_asm(
     query_type: str, key_type: str, value_type: str, output_type: str
 ) -> tuple[str, str]:
-    B, M, K1, input_dtype = query_type.split("x")
-    B, K2, K1, input_dtype = key_type.split("x")
-    B, N, K2, input_dtype = value_type.split("x")
+    B, M, K1, _ = query_type.split("x")
+    B, K2, K1, _ = key_type.split("x")
+    B, N, K2, _ = value_type.split("x")
     B, N, M, output_dtype = output_type.split("x")
     f8_dtype = "f8E4M3FNUZ"
     intermediate_output_type = f"{B}x{K2}x{M}x{output_dtype}"

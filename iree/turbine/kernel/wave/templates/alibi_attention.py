@@ -135,7 +135,7 @@ def get_alibi_attention_kernel(
             return m_j, d_j, acc
 
         # repeat represents the results of the loop
-        res_max, res_sum, res_mm = repeat
+        _, res_sum, res_mm = repeat
 
         reciprocal_sum = tkw.reciprocal(res_sum)
         res = res_mm * reciprocal_sum
