@@ -60,12 +60,11 @@ def multi_buffer(trace: CapturedTrace):
         write_nodes = memory_to_writes.get(memory_location, [])
 
         _multi_buffer_memory_location(
-            trace, memory_location, read_nodes, write_nodes, reduction_axis, 2
+            memory_location, read_nodes, write_nodes, reduction_axis, 2
         )
 
 
 def _multi_buffer_memory_location(
-    trace: CapturedTrace,
     original_buffer: CustomOp,
     read_nodes: list[Read],
     write_nodes: list[Write],

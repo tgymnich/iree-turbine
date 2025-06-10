@@ -48,7 +48,6 @@ IDENTITY = {"add": 0.0, "maximum": -1e6, "minimum": 1e6}
 def determine_shuffle_config(
     index: dict[IndexSymbol, IndexSequence],
     reduction_dim: IndexSymbol,
-    vector_shapes: dict[IndexSymbol, int],
     subgroup_size: int,
     induction_vars: list[IndexSymbol],
 ):
@@ -389,7 +388,6 @@ def decompose_reduce_ops(
             cluster_size, cluster_stride = determine_shuffle_config(
                 reduction_src[0].index,
                 reduction_dim,
-                node.vector_shapes,
                 subgroup_size,
                 induction_vars,
             )
