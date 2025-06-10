@@ -230,7 +230,6 @@ def handle_reduction_entry(
     reduction: Iterate,
     inputs: list[CustomOp],
     new_node: CustomOp,
-    node: CustomOp,
     dim_query: dict[IndexSymbol, int],
     dim_scaling: dict[IndexSymbol, int],
     expansion_context: ExpansionContext,
@@ -261,7 +260,6 @@ def handle_reduction_exit(
     reduction: Iterate,
     inputs: list[CustomOp],
     new_node: CustomOp,
-    node: CustomOp,
     dim_query: dict[IndexSymbol, int],
     dim_scaling: dict[IndexSymbol, int],
     expansion_context: ExpansionContext,
@@ -414,7 +412,6 @@ def populate_inputs(
     metadata: ExpansionMetadata,
     dim_scaling: dict[IndexSymbol, int],
     nodes_to_expand: list[tuple[CustomOp, dict[IndexSymbol, int]]],
-    expansion_context: ExpansionContext,
 ):
     expandable_args = filter_expandable_args([get_custom(x) for x in inputs])
     new_nodes_to_expand = []
@@ -489,7 +486,6 @@ def store_fixup_data(
     node: CustomOp,
     new_node: CustomOp,
     expanded_dims: dict[IndexSymbol, int],
-    dim_scaling: dict[IndexSymbol, int],
     metadata: ExpansionMetadata,
     expansion_context: ExpansionContext,
 ):
@@ -568,7 +564,6 @@ def expand_node(
         node,
         new_node,
         expanded_dims,
-        dim_scaling,
         metadata,
         expansion_context,
     )
@@ -583,7 +578,6 @@ def expand_node(
         reduction,
         inputs,
         new_node,
-        node,
         metadata.dim_query,
         dim_scaling,
         expansion_context,
@@ -592,14 +586,13 @@ def expand_node(
         reduction,
         inputs,
         new_node,
-        node,
         metadata.dim_query,
         dim_scaling,
         expansion_context,
     )
 
     nodes_to_expand = populate_inputs(
-        node, inputs, metadata, dim_scaling, nodes_to_expand, expansion_context
+        node, inputs, metadata, dim_scaling, nodes_to_expand
     )
     return nodes_to_expand
 

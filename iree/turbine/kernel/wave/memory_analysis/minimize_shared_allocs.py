@@ -71,7 +71,7 @@ def get_last_use(alloc: fx.Node, live_interval: LiveInterval) -> fx.Node:
     return get_use(alloc, live_interval, live_interval.end)
 
 
-def insert_barrier_if_needed(alloc: fx.Node, first_use: fx.Node, last_use: fx.Node):
+def insert_barrier_if_needed(first_use: fx.Node, last_use: fx.Node):
     """
     This function inserts a barrier between the last use of the allocation i
     and the first use of allocation j, if no barrier already exists between them.
@@ -132,7 +132,7 @@ def minimize_shared_allocs(trace: CapturedTrace, minimize_shared_allocs: bool):
         offset = allocs_to_offsets[alloc]
         if np.any(shared_memory[offset : offset + shared_memory_size]):
             first_use = get_first_use(alloc, live_intervals[alloc])
-            insert_barrier_if_needed(alloc, first_use, last_use)
+            insert_barrier_if_needed(first_use, last_use)
         shared_memory[offset : offset + shared_memory_size] = 1
         last_use = get_last_use(alloc, live_intervals[alloc])
 
