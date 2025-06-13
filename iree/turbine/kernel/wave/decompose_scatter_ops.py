@@ -25,7 +25,13 @@ from ..ops.wave_ops import (
     get_custom,
 )
 
-from .constraints import Constraint, HardwareConstraint, TilingConstraint, WaveConstraint, WorkgroupConstraint
+from .constraints import (
+    Constraint,
+    HardwareConstraint,
+    TilingConstraint,
+    WaveConstraint,
+    WorkgroupConstraint,
+)
 from .utils.classes import ShuffleMode
 from .utils.graph_utils import DCE
 
@@ -40,22 +46,19 @@ def emit_global_scatter_min(
     """
     Naive Approach using global atomics
     """
-
-    read_index = Read(index).add_to_graph(graph)
-    # read_index.index = {dim: IndexSequence(0, 1, 1)}
-
     read_src = Read(src).add_to_graph(graph)
-    read_src.index = get_custom(read_index).index
+    read_src.index = get_custom(index).index
     # scanop_result.expanded_dims = get_custom(src).expanded_dims
     # scanop_result.vector_shapes = get_custom(src).vector_shapes
-        
+
     AtomicMin(read_src, out).add_to_graph(graph)
 
     return
 
+
 def decompose_scatter_ops(
     trace: CapturedTrace,
-    # constraints: list[Constraint],
+    constraints: list[Constraint],
 ):
     """
     TODO: docstring

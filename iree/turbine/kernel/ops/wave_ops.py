@@ -213,6 +213,10 @@ def broadcast(
     ...
 
 
+def scatter_min(out: Memory, idx: Register, src: Memory, dim: IndexExpr):
+    ...
+
+
 def sum(
     src: "Register",
     acc: Optional["Register"] = None,
@@ -2110,11 +2114,11 @@ class ScatterOp(CustomOp):
     @property
     def num_scatter_dims(self) -> int:
         return 1
-    
+
     @property
     def scatter_dim(self) -> IndexSymbol:
         return self.dim
-    
+
     @property
     def memory_type(self) -> Memory:
         return get_custom(self.lhs).type
