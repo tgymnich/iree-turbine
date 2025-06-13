@@ -1235,7 +1235,7 @@ class SchedulingBarrier(CustomOp):
     operations: list[Operation]
 
 
-@define_op("atomic_min")
+@define_interface_op("atomic_min")
 @dataclass
 class AtomicOp(BinaryOpBase, ABC):
     """
@@ -2085,6 +2085,39 @@ class ScanOp(CustomOp, ABC):
     @property
     def scan_dim(self) -> IndexSymbol:
         return self.dim
+
+
+@define_op("scatter_add")
+class ScatterOp(CustomOp):
+    """
+    Represents a Scatter operation.
+    """
+
+    arg: fx.Node | list[fx.Node]
+    dim: Optional[Any]
+    # mapping: Optional[IndexMapping] = None
+    # block: Optional[bool] = False
+
+    @property
+    def indexing_dims(self) -> list[IndexSymbol]:
+        # if self.mapping is not None:
+        #     return list(self.mapping.output_shape)
+        return list(self.memory_type.symbolic_shape)
+
+    def infer_type(self):
+        self.type = get_custom(self.lhs).type
+
+    @property
+    def num_scatter_dims(self) -> int:
+        return 1
+    
+    @property
+    def scatter_dim(self) -> IndexSymbol:
+        return self.dim
+    
+    @property
+    def memory_type(self) -> Memory:
+        return get_custom(self.lhs).type
 
 
 @define_interface_op("max")
