@@ -40,14 +40,13 @@ from ...compiler.ir import (
     arith_d,
     func_d,
     gpu_d,
-    stream_d,
     vector_d,
 )
 
 
 from ..utils.general_utils import get_hardware_constraint
 from ...compiler.builder import IRProxyValue
-from ...compiler.kernel_codegen import BoundKernelSignature
+from ...compiler.kernel_codegen import BoundKernelSignature, BindingType
 from ..._support.tracing import CapturedTrace
 from ...compiler.base import CodegenError, NDEBUG
 
@@ -55,6 +54,15 @@ from ...lang.wave_types import IndexSymbol
 from ..constraints import Constraint, TilingConstraint, HardwareConstraint
 from ..._support.indexing import IndexingContext, IndexExpr, xor
 from ..compile_options import WaveCompileOptions
+from ..utils.symbol_utils import subs_idxc
+
+
+def _get_upper_bound(expr: Any) -> Optional[Attribute]:
+    res = subs_idxc(sympy.sympify(expr))
+    if res.is_number:
+        return IntegerAttr.get(IndexType.get(), int(res))
+    else:
+        return None
 
 
 @dataclass
@@ -65,6 +73,7 @@ class WaveEmitter:
     trace: CapturedTrace
     constraints: list[Constraint]
     options: WaveCompileOptions
+    grid_type: Type["Grid"]
     ip: InsertionPoint = None
     OP_HANDLERS: ClassVar[dict[str, Callable[["WaveEmitter", fx.Node], None]]] = {}
     _node_values: ClassVar[dict[fx.Node, List[IRProxyValue]]] = {}
@@ -74,22 +83,43 @@ class WaveEmitter:
         self.dynamic_symbols = self.options.dynamic_symbols
 
     def emit_program_invariants(self):
+        grid_type = self.grid_type
+
         self.workgroup_ids = [
-            stream_d.dispatch_workgroup_id(IntegerAttr.get(IndexType.get(), 0)),
-            stream_d.dispatch_workgroup_id(IntegerAttr.get(IndexType.get(), 1)),
-            stream_d.dispatch_workgroup_id(IntegerAttr.get(IndexType.get(), 2)),
+            gpu_d.block_id(
+                gpu_d.Dimension.x,
+                upper_bound=_get_upper_bound(grid_type.dims[0]),
+            ),
+            gpu_d.block_id(
+                gpu_d.Dimension.y,
+                upper_bound=_get_upper_bound(grid_type.dims[1]),
+            ),
+            gpu_d.block_id(
+                gpu_d.Dimension.z,
+                upper_bound=_get_upper_bound(grid_type.dims[2]),
+            ),
         ]
+
+        threads_per_block = self.hardware_constraint.threads_per_block
         self.thread_ids = [
-            gpu_d.thread_id(gpu_d.Dimension.x),
-            gpu_d.thread_id(gpu_d.Dimension.y),
-            gpu_d.thread_id(gpu_d.Dimension.z),
+            gpu_d.thread_id(
+                gpu_d.Dimension.x, upper_bound=_get_upper_bound(threads_per_block[0])
+            ),
+            gpu_d.thread_id(
+                gpu_d.Dimension.y, upper_bound=_get_upper_bound(threads_per_block[1])
+            ),
+            gpu_d.thread_id(
+                gpu_d.Dimension.z, upper_bound=_get_upper_bound(threads_per_block[2])
+            ),
         ]
         self.induction_vars: dict[IndexSymbol, Value] = {}
         self.dynamic_dims: dict[IndexSymbol, Value] = {}
-        symbol_iterator = iter(self.dynamic_symbols)
-        for arg in self.root_sig.entry_block.arguments:
-            if arg.type == IndexType.get():
-                self.dynamic_dims[next(symbol_iterator)] = arg
+
+        for bind, arg in zip(
+            self.root_sig.sig.bindings, self.root_sig.entry_block.arguments
+        ):
+            if bind.binding_type == BindingType.SYMBOL_VALUE:
+                self.dynamic_dims[bind.symbol_type] = arg
 
     def emit(self, graph: Optional[fx.Graph] = None):
         with self.ip, Location.unknown():

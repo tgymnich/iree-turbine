@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    List,
     Optional,
     Sequence,
     Type,
@@ -46,23 +47,20 @@ def allocate(
     distributed_shape: tuple[IndexExpr],
     dtype: DataType,
     address_space: IndexSymbol,
-) -> "Memory":
-    ...
+) -> "Memory": ...
 
 
 def self_index(
     dim: IndexExpr,
     dtype: DataType,
     elements_per_thread: Optional[IndexExpr | int] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def extract(
     register: "Register",
     offsets: tuple[IndexExpr],
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def extract_slice(
@@ -70,20 +68,16 @@ def extract_slice(
     offsets: tuple[IndexExpr],
     sizes: tuple[IndexExpr],
     strides: tuple[IndexExpr],
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
-def set_wave_prio(priority: int):
-    ...
+def set_wave_prio(priority: int): ...
 
 
-def shared_memory_barrier():
-    ...
+def shared_memory_barrier(): ...
 
 
-def workgroup_barrier():
-    ...
+def workgroup_barrier(): ...
 
 
 def read(
@@ -91,32 +85,37 @@ def read(
     elements_per_thread: Optional[IndexExpr | int] = None,
     mapping: Optional[IndexMapping] = None,
     mapping_dynamic_vals: "Register" | tuple["Register", ...] = (),
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def conditional(
     condition: "Register" | IndexExpr,
-) -> Callable[[Callable[[], None]], None]:
-    ...
+) -> Callable[[Callable[[], None]], None]: ...
 
 
 def iterate(
     axis: IndexExpr, init_args: Sequence["Register"]
-) -> Callable[[Callable[[AccT], AccT]], AccT]:
-    ...
+) -> Callable[[Callable[[AccT], AccT]], AccT]: ...
 
 
-def register(shape: tuple[IndexExpr, ...], dtype: DataType, value: float) -> "Register":
-    ...
+def register(
+    shape: tuple[IndexExpr, ...], dtype: DataType, value: float
+) -> "Register": ...
 
 
-def scalar(dtype: DataType, value: float) -> "Register":
-    ...
+def scalar(dtype: DataType, value: float) -> "Register": ...
 
 
-def mma(lhs: "Register", rhs: "Register", acc: "Register") -> "Register":
-    ...
+def mma(lhs: "Register", rhs: "Register", acc: "Register") -> "Register": ...
+
+
+def scaled_mma(
+    lhs: "Register",
+    lhs_scale: "Register",
+    rhs: "Register",
+    rhs_scale: "Register",
+    acc: "Register",
+) -> "Register": ...
 
 
 def write(
@@ -125,36 +124,33 @@ def write(
     elements_per_thread: Optional[IndexExpr | int] = None,
     mapping: Optional[IndexMapping] = None,
     mapping_dynamic_vals: "Register" | tuple["Register", ...] = (),
-):
-    ...
+): ...
 
 
-def apply_expr(value: "Register" | Sequence["Register"], expr: Callable) -> "Register":
-    ...
+def apply_expr(
+    value: "Register" | Sequence["Register"], expr: Callable
+) -> "Register": ...
 
 
-def set_symbol(symbol: IndexExpr, value: "Register"):
-    ...
+def set_symbol(symbol: IndexExpr, value: "Register"): ...
 
 
-def exp(src: "Register") -> "Register":
-    ...
+def exp(src: "Register") -> "Register": ...
 
 
-def exp2(src: "Register") -> "Register":
-    ...
+def exp2(src: "Register") -> "Register": ...
 
 
-def log2(src: "Register") -> "Register":
-    ...
+def sqrt(src: "Register") -> "Register": ...
 
 
-def reciprocal(src: "Register") -> "Register":
-    ...
+def log2(src: "Register") -> "Register": ...
 
 
-def abs(src: "Register") -> "Register":
-    ...
+def reciprocal(src: "Register") -> "Register": ...
+
+
+def abs(src: "Register") -> "Register": ...
 
 
 def softsign(
@@ -162,40 +158,37 @@ def softsign(
     logit_cap: float = 30.0,
     apply_scaling: bool = False,
     head_dim: int = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
-def tanh_approx(src: "Register") -> "Register":
-    ...
+def tanh_approx(src: "Register") -> "Register": ...
 
 
-def tanh(src: "Register") -> "Register":
-    ...
+def tanh(src: "Register") -> "Register": ...
 
 
-def cos(src: "Register") -> "Register":
-    ...
+def cos(src: "Register") -> "Register": ...
 
 
-def roundeven(src: "Register") -> "Register":
-    ...
+def roundeven(src: "Register") -> "Register": ...
 
 
-def sin(src: "Register") -> "Register":
-    ...
+def sin(src: "Register") -> "Register": ...
 
 
-def maximum(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def maximum(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def minimum(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def minimum(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def atan2(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def atan2(lhs: "Register", rhs: "Register") -> "Register": ...
+
+
+def powf(lhs: "Register", rhs: "Register") -> "Register": ...
+
+
+def cbrt(src: "Register") -> "Register": ...
 
 
 def atomic_min(
@@ -203,92 +196,77 @@ def atomic_min(
     rhs: "Memory",
     elements_per_thread: Optional[IndexExpr | int] = None,
     mapping: Optional[IndexMapping] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def broadcast(
     arg: "Register", target_shape: Optional[Sequence[IndexExpr | int]] = None
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def sum(
     src: "Register",
     acc: Optional["Register"] = None,
     dim: Optional[IndexExpr | int] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def cumsum(
     src: "Register",
     acc: Optional["Register"] = None,
     dim: Optional[IndexExpr | int] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def max(
     src: "Register",
     acc: Optional["Register"] = None,
     dim: Optional[IndexExpr | int] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
 def min(
     src: "Register",
     acc: Optional["Register"] = None,
     dim: Optional[IndexExpr | int] = None,
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
-def shuffle(src: "Register", offset: int, width: int) -> "Register":
-    ...
+def shuffle(src: "Register", offset: int, width: int) -> "Register": ...
 
 
-def gt(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def gt(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def ge(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def ge(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def lt(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def lt(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def le(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def le(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def eq(lhs: "Register", rhs: "Register") -> "Register":
-    ...
+def eq(lhs: "Register", rhs: "Register") -> "Register": ...
 
 
-def cast(src: "Register", dtype: DataType) -> "Register":
-    ...
+def cast(src: "Register", dtype: DataType) -> "Register": ...
 
 
-def bitcast(src: "Register", dtype: DataType) -> "Register":
-    ...
+def bitcast(src: "Register", dtype: DataType) -> "Register": ...
 
 
-def permute(src: "Register", target_shape: Sequence[IndexExpr]) -> "Register":
-    ...
+def permute(src: "Register", target_shape: Sequence[IndexExpr]) -> "Register": ...
 
 
 def reshape(
     inputs: Sequence["Register"], target_vector_shape: dict[IndexSymbol, int]
-) -> "Register":
-    ...
+) -> "Register": ...
 
 
-def select(cond: "Register", if_true: "Register", if_false: "Register") -> "Register":
-    ...
+def select(
+    cond: "Register", if_true: "Register", if_false: "Register"
+) -> "Register": ...
 
 
 def define_op(op_name: str) -> Callable[[T], T]:
@@ -522,7 +500,7 @@ class CustomOp(ABC):
             kwargs={},
         )
 
-    def update_arg(self, idx_or_name: int | str, value: CustomOp | fx.Node):
+    def update_arg(self, idx_or_name: int | str | fx.Node, value: CustomOp | fx.Node):
         """
         Update the value of an argument in the node while keeping the
         underlying fx.Node consistent.
@@ -533,6 +511,8 @@ class CustomOp(ABC):
             if idx_or_name not in field_names:
                 raise ValueError(f"Field {idx_or_name} not found")
             idx = field_names.index(idx_or_name)
+        elif isinstance(idx_or_name, fx.Node):
+            idx = self.fx_node.args.index(idx_or_name)
         else:
             idx = idx_or_name
         if isinstance(value, CustomOp):
@@ -872,6 +852,7 @@ class BinaryOpBase(CustomOp, ABC):
 @define_interface_op("maximum")
 @define_interface_op("minimum")
 @define_interface_op("atan2")
+@define_interface_op("powf")
 @dataclass
 class BinaryPyOp(BinaryOpBase, ABC):
     def infer_type(self):
@@ -905,6 +886,7 @@ class ComparisonPyOp(BinaryOpBase, ABC):
 @define_interface_op("abs")
 @define_interface_op("exp")
 @define_interface_op("exp2")
+@define_interface_op("sqrt")
 @define_interface_op("log2")
 @define_interface_op("reciprocal")
 @define_interface_op("roundeven")
@@ -912,6 +894,7 @@ class ComparisonPyOp(BinaryOpBase, ABC):
 @define_interface_op("tanh")
 @define_interface_op("tanh_approx")
 @define_interface_op("cos")
+@define_interface_op("cbrt")
 @define_py_op(operator.neg)
 @define_py_op(operator.invert)
 @dataclass
@@ -1405,6 +1388,147 @@ class MMA(CustomOp):
         self.fx_node.reduction_dim = value
 
 
+@define_op("scaled_mma")
+@dataclass
+class ScaledMMA(CustomOp):
+    lhs: fx.Node
+    lhs_scale: fx.Node
+    rhs: fx.Node
+    rhs_scale: fx.Node
+    acc: fx.Node
+    mma_type: Optional["ScaledMMAType"] = None
+
+    @property
+    def indexing_dims(self) -> list[IndexSymbol]:
+        combined_dims = (
+            get_custom(self.lhs).indexing_dims
+            + get_custom(self.lhs_scale).indexing_dims
+            + get_custom(self.rhs).indexing_dims
+            + get_custom(self.rhs_scale).indexing_dims
+            + get_custom(self.acc).indexing_dims
+        )
+        unique_dims = list(dict.fromkeys(combined_dims))
+        return unique_dims
+
+    @property
+    def lhs_type(self) -> Memory:
+        return get_custom(self.lhs).type
+
+    @property
+    def lhs_scale_type(self) -> Memory:
+        return get_custom(self.lhs_scale).type
+
+    @property
+    def rhs_type(self) -> Memory:
+        return get_custom(self.rhs).type
+
+    @property
+    def rhs_scale_type(self) -> Memory:
+        return get_custom(self.rhs_scale).type
+
+    @property
+    def acc_type(self) -> Memory:
+        return get_custom(self.acc).type
+
+    def infer_type(self):
+        self.type = self.acc_type
+
+    def operand_index(
+        self, operand_map: dict[IndexSymbol, int], shape: list[IndexExpr]
+    ) -> dict[IndexSymbol, IndexSequence]:
+        from ..wave.utils.general_utils import infer_dim
+
+        indices: dict[IndexSymbol, IndexSequence] = {}
+        for dim_expr in shape:
+            dim = infer_dim(dim_expr)
+            indices[dim] = self.index[dim].subs(operand_map)
+        return indices
+
+    @property
+    def lhs_index(self) -> dict[IndexSymbol, IndexSequence]:
+        operand_map = {
+            MMA_LHS: 1,
+            MMA_RHS: 0,
+            MMA_ACC: 0,
+            MMA_LHS_SCALE: 0,
+            MMA_RHS_SCALE: 0,
+        }
+        return self.operand_index(operand_map, self.lhs_type.symbolic_shape)
+
+    @property
+    def lhs_scale_index(self) -> dict[IndexSymbol, IndexSequence]:
+        operand_map = {
+            MMA_LHS: 0,
+            MMA_RHS: 0,
+            MMA_ACC: 0,
+            MMA_LHS_SCALE: 1,
+            MMA_RHS_SCALE: 0,
+        }
+        return self.operand_index(operand_map, self.lhs_scale_type.symbolic_shape)
+
+    @property
+    def rhs_index(self) -> dict[IndexSymbol, IndexSequence]:
+        operand_map = {
+            MMA_LHS: 0,
+            MMA_RHS: 1,
+            MMA_ACC: 0,
+            MMA_LHS_SCALE: 0,
+            MMA_RHS_SCALE: 0,
+        }
+        return self.operand_index(operand_map, self.rhs_type.symbolic_shape)
+
+    @property
+    def rhs_scale_index(self) -> dict[IndexSymbol, IndexSequence]:
+        operand_map = {
+            MMA_LHS: 0,
+            MMA_RHS: 0,
+            MMA_ACC: 0,
+            MMA_LHS_SCALE: 0,
+            MMA_RHS_SCALE: 1,
+        }
+        return self.operand_index(operand_map, self.rhs_scale_type.symbolic_shape)
+
+    @property
+    def acc_index(self) -> dict[IndexSymbol, IndexSequence]:
+        operand_map = {
+            MMA_LHS: 0,
+            MMA_RHS: 0,
+            MMA_ACC: 1,
+            MMA_LHS_SCALE: 0,
+            MMA_RHS_SCALE: 0,
+        }
+        if self.acc_type is None:
+            return None
+        return self.operand_index(operand_map, self.acc_type.symbolic_shape)
+
+    def custom_string(self, value_map: dict[str, str]) -> str:
+        if self.index is None:
+            return super().custom_string(value_map)
+        custom_str = f"{self.tkw_op_name}("
+        custom_str += f"lhs={self.lhs} (index = {self.lhs_index}), "
+        custom_str += f"lhs_scale={self.lhs_scale} (index = {self.lhs_scale_index}), "
+        custom_str += f"rhs={self.rhs} (index = {self.rhs_index}), "
+        custom_str += f"rhs_scale={self.rhs_scale} (index = {self.rhs_scale_index}), "
+        custom_str += f"acc={self.acc} (index = {self.acc_index}))"
+        custom_str += f" type({self.fx_node.type})"
+        return custom_str
+
+    def align_index(self, constraints: list["Constraint"]) -> None:
+        # Local import to break circular dep.
+        from ..wave.utils.general_utils import align_index_vars
+
+        self.index = align_index_vars(self.index, constraints)
+
+    @property
+    def reduction_dim(self) -> IndexSymbol:
+        if hasattr(self.fx_node, "reduction_dim"):
+            return self.fx_node.reduction_dim
+
+    @reduction_dim.setter
+    def reduction_dim(self, value: IndexSymbol):
+        self.fx_node.reduction_dim = value
+
+
 @define_op("read")
 @dataclass
 class Read(CustomOp):
@@ -1705,7 +1829,7 @@ class Iterate(NestedRegionOp):
                     [
                         (
                             get_custom(val).acc_index
-                            if isinstance(get_custom(val), MMA)
+                            if isinstance(get_custom(val), (MMA, ScaledMMA))
                             else val.index
                         )
                         for val in return_vals

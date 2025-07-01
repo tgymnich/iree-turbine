@@ -24,6 +24,7 @@ from iree.turbine.kernel.wave.compile import WaveCompileOptions, wave_compile
 from iree.turbine.kernel.wave.constraints import MMAType, GenericDot, MMAOperand
 from iree.turbine.kernel.wave.templates.paged_decode_attention import (
     get_paged_decode_attention_kernels,
+    get_paged_decode_intermediate_arrays_shapes,
     paged_decode_attention_shape,
 )
 from iree.turbine.kernel.wave.scheduling.schedule import SchedulingType
@@ -247,12 +248,6 @@ def testPagedFlashDecoding(
         shape.num_kv_heads = key_cache.shape[2]
         shape.head_size_kv = value_cache.shape[3]
 
-    key_cache_4d = key_cache.view(
-        shape.num_seqs, -1, shape.num_kv_heads, shape.head_size
-    )
-    value_cache_4d = value_cache.view(
-        shape.num_seqs, -1, shape.num_kv_heads, shape.head_size_kv
-    )
     logit_cap = 30.0
 
     # Run the wave kernel.
@@ -276,16 +271,12 @@ def testPagedFlashDecoding(
     run_bench = request.config.getoption("--runperf")
     dump_perf = request.config.getoption("--dump-perf-files-path")
 
-    phase_0_output = device_zeros(
-        num_kv_splits,
-        shape.num_seqs,
-        shape.head_size_kv,
-        shape.num_query_heads,
-        dtype=torch.float32,
+    phase_0_output_shape, phase_0_output_max_shape = (
+        get_paged_decode_intermediate_arrays_shapes(shape, num_kv_splits)
     )
-    phase_0_output_max = device_zeros(
-        num_kv_splits, shape.num_seqs, shape.num_query_heads, dtype=torch.float32
-    )
+
+    phase_0_output = device_zeros(phase_0_output_shape, dtype=torch.float32)
+    phase_0_output_max = device_zeros(phase_0_output_max_shape, dtype=torch.float32)
     output = device_zeros(
         shape.num_seqs, shape.num_query_heads, shape.head_size_kv, dtype=dtype
     )
@@ -313,8 +304,8 @@ def testPagedFlashDecoding(
     # TODO: Add variant of non-transposed V attention kernel.
     asm_qk = phase_0(
         query,
-        key_cache_4d,
-        value_cache_4d,
+        key_cache,
+        value_cache,
         request_indices,
         block_table,
         phase_0_output,
@@ -446,13 +437,6 @@ def testPagedFlashDecodingMHA(
         shape.num_kv_heads = key_cache.shape[2]
         shape.head_size_kv = value_cache.shape[3]
 
-    key_cache_4d = key_cache.view(
-        shape.num_seqs, -1, shape.num_kv_heads, shape.head_size
-    )
-    value_cache_4d = value_cache.view(
-        shape.num_seqs, -1, shape.num_kv_heads, shape.head_size_kv
-    )
-
     # Run the wave kernel.
     (
         phase_0,
@@ -474,16 +458,12 @@ def testPagedFlashDecodingMHA(
     run_bench = request.config.getoption("--runperf")
     dump_perf = request.config.getoption("--dump-perf-files-path")
 
-    phase_0_output = device_zeros(
-        num_kv_splits,
-        shape.num_seqs,
-        shape.head_size_kv,
-        shape.num_query_heads,
-        dtype=torch.float32,
+    phase_0_output_shape, phase_0_output_max_shape = (
+        get_paged_decode_intermediate_arrays_shapes(shape, num_kv_splits)
     )
-    phase_0_output_max = device_zeros(
-        num_kv_splits, shape.num_seqs, shape.num_query_heads, dtype=torch.float32
-    )
+
+    phase_0_output = device_zeros(phase_0_output_shape, dtype=torch.float32)
+    phase_0_output_max = device_zeros(phase_0_output_max_shape, dtype=torch.float32)
     output = device_zeros(
         shape.num_seqs, shape.num_query_heads, shape.head_size_kv, dtype=dtype
     )
@@ -510,8 +490,8 @@ def testPagedFlashDecodingMHA(
     # TODO: Add variant of non-transposed V attention kernel.
     asm_qk = phase_0(
         query,
-        key_cache_4d,
-        value_cache_4d,
+        key_cache,
+        value_cache,
         request_indices,
         block_table,
         phase_0_output,
