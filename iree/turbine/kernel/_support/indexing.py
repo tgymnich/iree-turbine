@@ -1,3 +1,4 @@
+import pathlib
 from typing import Any, ClassVar, Optional, Type, TypeVar, Union, TypeAlias
 
 from abc import ABC
@@ -254,6 +255,10 @@ class IndexingContext:
             return None
 
     def simplify_expr(self, expr: IndexExpr | int) -> IndexExpr:
+        filename = pathlib.Path.home() / "log.txt"
+        with open(filename, "a") as f:
+            if isinstance(expr, sympy.Expr):
+                print(expr.atoms(sympy.Basic), file=f)
         return sympy.sympify(expr).subs(self.frozen_subs).simplify()
 
     def get_static_value(self, expr: IndexExpr | int) -> Optional[int]:
