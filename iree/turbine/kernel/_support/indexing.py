@@ -258,7 +258,8 @@ class IndexingContext:
         filename = pathlib.Path.home() / "log.txt"
         with open(filename, "a") as f:
             if isinstance(expr, sympy.Expr):
-                print(expr.atoms(sympy.Basic), file=f)
+                names = [sympy.func_name(i) for i in expr.atoms(sympy.Basic)]
+                print(names, file=f)
         return sympy.sympify(expr).subs(self.frozen_subs).simplify()
 
     def get_static_value(self, expr: IndexExpr | int) -> Optional[int]:
