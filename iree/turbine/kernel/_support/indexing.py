@@ -5,6 +5,7 @@ from abc import ABC
 from dataclasses import dataclass
 
 import sympy
+from sympy.utilities.misc import func_name
 
 from . import context
 from . import dtype
@@ -258,7 +259,7 @@ class IndexingContext:
         filename = pathlib.Path.home() / "log.txt"
         with open(filename, "a") as f:
             if isinstance(expr, sympy.Expr):
-                names = [sympy.func_name(i) for i in expr.atoms(sympy.Basic)]
+                names = [func_name(i) for i in expr.atoms(sympy.Basic)]
                 print(names, file=f)
         return sympy.sympify(expr).subs(self.frozen_subs).simplify()
 
